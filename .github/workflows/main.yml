@@ -35,3 +35,11 @@ jobs:
         # Run tests
         - name: Run Tests
           run: npm run test
+
+        # Install Cypress
+        - name: Install Cypress
+          run: npm install cypress --save-dev
+
+        # Run Cypress tests
+        - name: Run Cypress Tests
+          run: npx cypress run
