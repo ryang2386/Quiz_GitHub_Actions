@@ -1,5 +1,5 @@
 # Name of workflow
-name: Lint workflow
+name: Cypress workflow
 
 # Trigger workflow on all pull requests
 on:
@@ -17,10 +17,10 @@ jobs:
         steps:
     # Get code from repo
         - name: Checkout code
-          uses: actions/checkout@v1
+          uses: actions/checkout@v3
 
         - name: Use Node.js 21.x
-          uses: actions/setup-node@v1
+          uses: actions/setup-node@v4
           with:
             node-version: 21.x
 
@@ -31,15 +31,20 @@ jobs:
         # Run build
         - name: Run Build
           run: npm run build
-
-        # Run tests
-        - name: Run Tests
-          run: npm run test
-
+          
         # Install Cypress
         - name: Install Cypress
-          run: npm install cypress --save-dev
+          uses: cypress-io/github-action@v6
+          with:
+            build: npm run build
+            start: npm run start
+            wait-on: 'http://localhost:3001'
+        #   run: npm install cypress --save-dev
 
-        # Run Cypress tests
-        - name: Run Cypress Tests
-          run: npx cypress run
+        # # Run tests
+        # - name: Run Tests
+        #   run: npm run test
+
+        # # Run Cypress tests
+        # - name: Run Cypress Tests
+        #   run: npx cypress run
