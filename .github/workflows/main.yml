@@ -51,10 +51,31 @@ jobs:
             sleep 10 # wait for server to start
 
         # Install Cypress
-        - name: Install Cypress
-          uses: cypress-io/github-action@v6
-          with:
-            command: npx cypress run --component --browser chrome
+        - name: Run Cypress Tests
+          run: |
+            mkdir -p cypress/results
+            npx cypress run --component --browser chrome \
+            --reporter mocha-junit-reporter \
+            --reporter-options "mochaFile=cypress/results/results.xml, toConsole=false"
+        # - name: Install Cypress
+        #   uses: cypress-io/github-action@v6
+        #   with:
+        #     command: npx cypress run --component --browser chrome
+
+        - name: Write Test Summary to GitHub UI
+          run: |
+            PASSED=$(grep -oP 'tests="\K[0-9]+' cypress/results/results.xml)
+            FAILED=$(grep -oP 'failures="\K[0-9]+' cypress/results/results.xml)
+            SKIPPED=$(grep -oP 'skipped="\K[0-9]+' cypress/results/results.xml)
+            PENDING=0
+            DURATION=$(grep -oP 'time="\K[0-9.]+' cypress/results/results.xml)
+
+            echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
+            echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Passing | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
+
+
 
         - name: Publish test results
           uses: dorny/test-reporter@v2
