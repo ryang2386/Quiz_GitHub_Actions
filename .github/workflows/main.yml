@@ -57,10 +57,14 @@ jobs:
             component: true
             browser: chrome
             spec: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}'
-            command: npx cypress run --component --browser chrome --reporter github
 
-        - name: Print GitHub Step Summary (Debug)
-          run: cat $GITHUB_STEP_SUMMARY
+        - name: Test Reporter
+          uses: dorny/test-reporter@v2.0.0
+          if: success() || failure()
+          with:
+            name: Cypress Tests
+            path: cypress/results
+            reporter: cypress-multi-reporters
 
           # with:
           #   start: npm run start
