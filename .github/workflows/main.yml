@@ -52,11 +52,12 @@ jobs:
 
         # Install Cypress
         - name: Install Cypress
-          uses: cypress-io/github-action@v6
-          with:
-            component: true
-            browser: chrome
-            record: false
+          run: npx cypress run --component --browser chrome
+          # uses: cypress-io/github-action@v6
+          # with:
+          #   component: true
+          #   browser: chrome
+          #   record: false
 
           # with:
           #   start: npm run start
