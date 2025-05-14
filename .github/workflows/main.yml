@@ -53,7 +53,9 @@ jobs:
         # Install Cypress
         - name: Install Cypress
           uses: cypress-io/github-action@v6
-          
+          with:
+            command: npm run test-component
+
           # with:
           #   start: npm run start
           #   wait-on: 'http://localhost:3001'
