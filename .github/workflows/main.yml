@@ -56,7 +56,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/[name]-results.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
     test_20:
         # Operating system to run job on
         runs-on: ubuntu-latest
@@ -104,7 +104,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/[name]-results.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
     test_22:
         # Operating system to run job on
         runs-on: ubuntu-latest
@@ -152,7 +152,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/[name]-results.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
         # - name: Install Cypress
         #   uses: cypress-io/github-action@v6
         #   with:
@@ -160,11 +160,10 @@ jobs:
 
         - name: Write Detailed Cypress Test Summary
           run: |
-            echo "### $SPEC_NAME" >> $GITHUB_STEP_SUMMARY
-            echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Passing | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
+            if [ ! -f cypress/results/results.xml ]; then
+            echo "No results file found!"
+            exit 1
+            fi
 
             xmllint --xpath "//testcase" cypress/results/results.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
@@ -172,14 +171,20 @@ jobs:
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
             time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
             if echo "$testcase" | grep -q "<failure"; then
-            status="❌ Failed"
+              status_failed=1
+              status_passed=0
+              status_icon="❌"
             else
-            status="✅ Passed"
+              status_failed=0
+              status_passed=1
+              status_icon="✅"
             fi
-            echo "| $name | $status | $time |" >> $GITHUB_STEP_SUMMARY
+            echo "### $name" >> $GITHUB_STEP_SUMMARY
+            echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ${status_icon} | $status_passed | $status_failed | 0 | 0 | ${time}s |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
             done
-
-
 
         - name: Publish test results
           uses: dorny/test-reporter@v2
