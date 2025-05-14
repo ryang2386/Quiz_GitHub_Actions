@@ -52,12 +52,14 @@ jobs:
 
         # Install Cypress
         - name: Install Cypress
-          run: npx cypress run --component --browser chrome
-          # uses: cypress-io/github-action@v6
-          # with:
-          #   component: true
-          #   browser: chrome
-          #   record: false
+          uses: cypress-io/github-action@v6
+          with:
+            component: true
+            browser: chrome
+            spec: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}'
+
+        - name: Print GitHub Step Summary (Debug)
+          run: cat $GITHUB_STEP_SUMMARY
 
           # with:
           #   start: npm run start
