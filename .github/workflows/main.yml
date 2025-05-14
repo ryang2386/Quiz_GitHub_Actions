@@ -56,28 +56,33 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results.xml, toConsole=false"
+            --reporter-options "mochaFile=cypress/results/[name]-results.xml,toConsole=false"
         # - name: Install Cypress
         #   uses: cypress-io/github-action@v6
         #   with:
         #     command: npx cypress run --component --browser chrome
 
-        - name: Write Test Summary to GitHub UI
+        - name: Write Test Summary to GitHub UI (Per Spec)
           run: |
-            if [[ -f cypress/results/results.xml ]]; then
-            PASSED=$(grep -o 'tests="[0-9]*"' cypress/results/results.xml | head -n1 | sed 's/[^0-9]*//g')
-            FAILED=$(grep -o 'failures="[0-9]*"' cypress/results/results.xml | head -n1 | sed 's/[^0-9]*//g')
-            SKIPPED=$(grep -o 'skipped="[0-9]*"' cypress/results/results.xml | head -n1 | sed 's/[^0-9]*//g')
-            DURATION=$(grep -o 'time="[0-9.]*"' cypress/results/results.xml | head -n1 | sed 's/[^0-9.]*//g')
+            echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
+
+            for FILE in cypress/results/*-results.xml; do
+            if [[ -f "$FILE" ]]; then
+            SPEC_NAME=$(basename "$FILE" | sed 's/-results\.xml//')
+            PASSED=$(grep -o 'tests="[0-9]*"' "$FILE" | head -n1 | sed 's/[^0-9]*//g')
+            FAILED=$(grep -o 'failures="[0-9]*"' "$FILE" | head -n1 | sed 's/[^0-9]*//g')
+            SKIPPED=$(grep -o 'skipped="[0-9]*"' "$FILE" | head -n1 | sed 's/[^0-9]*//g')
+            DURATION=$(grep -o 'time="[0-9.]*"' "$FILE" | head -n1 | sed 's/[^0-9.]*//g')
             PENDING=0
 
-            echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
+            echo "### $SPEC_NAME" >> $GITHUB_STEP_SUMMARY
             echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
             echo "| Passing | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
-            else
-            echo "❌ Cypress results file not found." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
             fi
+            done
+
 
         - name: Publish test results
           uses: dorny/test-reporter@v2
