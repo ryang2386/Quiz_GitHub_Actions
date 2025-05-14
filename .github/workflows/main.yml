@@ -54,7 +54,6 @@ jobs:
         - name: Install Cypress
           uses: cypress-io/github-action@v6
           with:
-            command: npm run test-component
             component: true
             browser: chrome
             record: false
