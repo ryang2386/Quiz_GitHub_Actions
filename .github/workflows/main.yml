@@ -12,6 +12,22 @@ jobs:
     test:
         # Operating system to run job on
         runs-on: ubuntu-latest
+        services:
+            mongo:
+                image: mongo:latest
+                ports:
+                    - 27017:27017
+                options: >-
+                    --health-cmd "mongo --eval 'db.adminCommand(\"ping\")'"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+                # wait for mongo to be ready before running tests
+                # healthcheck:
+                #   test: echo "Mongo is up"
+                #   interval: 10s
+                #   timeout: 5s
+                #   retries: 3
 
     # Steps in job
         steps:
