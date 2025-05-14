@@ -54,18 +54,15 @@ jobs:
         - name: Install Cypress
           uses: cypress-io/github-action@v6
           with:
-            component: true
-            browser: chrome
-            spec: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}'
+            command: npx cypress run --component --browser chrome
 
-        - name: Test Reporter
-          uses: dorny/test-reporter@v2.0.0
-          if: success() || failure()
+        - name: Publish test results
+          uses: dorny/test-reporter@v2
           with:
-            name: Cypress Tests
-            path: cypress/results
-            reporter: cypress-multi-reporters
-
+            name: Cypress Component Tests
+            path: cypress/results/*.xml
+            reporter: jest-junit
+            fail-on-error: true
           # with:
           #   start: npm run start
           #   wait-on: 'http://localhost:3001'
