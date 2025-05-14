@@ -157,11 +157,12 @@ jobs:
         #   uses: cypress-io/github-action@v6
         #   with:
         #     command: npx cypress run --component --browser chrome
-
         - name: Write Detailed Cypress Test Summary
           run: |
+            echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
+
             if [ ! -f cypress/results/results.xml ]; then
-            echo "No results file found!"
+            echo "Results file not found!"
             exit 1
             fi
 
@@ -171,20 +172,24 @@ jobs:
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
             time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
             if echo "$testcase" | grep -q "<failure"; then
-              status_failed=1
-              status_passed=0
-              status_icon="❌"
+              status="❌"
+              passed=0
+              failed=1
             else
-              status_failed=0
-              status_passed=1
-              status_icon="✅"
+              status="✅"
+              passed=1
+              failed=0
             fi
+            pending=0
+            skipped=0
+
             echo "### $name" >> $GITHUB_STEP_SUMMARY
             echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
-            echo "| ${status_icon} | $status_passed | $status_failed | 0 | 0 | ${time}s |" >> $GITHUB_STEP_SUMMARY
+            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             done
+
 
         - name: Publish test results
           uses: dorny/test-reporter@v2
