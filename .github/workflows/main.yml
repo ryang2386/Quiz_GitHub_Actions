@@ -57,6 +57,39 @@ jobs:
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+        - name: Write Detailed Cypress Test Summary
+          run: |
+            echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
+
+            if [ ! -f cypress/results/results.xml ]; then
+            echo "Results file not found!"
+            exit 1
+            fi
+
+            xmllint --xpath "//testcase" cypress/results/results.xml | \
+            sed -E 's/<testcase /\n<testcase /g' | \
+            while read -r testcase; do
+            name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+            time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+            if echo "$testcase" | grep -q "<failure"; then
+              status="❌"
+              passed=0
+              failed=1
+            else
+              status="✅"
+              passed=1
+              failed=0
+            fi
+            pending=0
+            skipped=0
+
+            echo "### $name" >> $GITHUB_STEP_SUMMARY
+            echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
+            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            done
+            
     test_20:
         # Operating system to run job on
         runs-on: ubuntu-latest
@@ -105,6 +138,40 @@ jobs:
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+
+        - name: Write Detailed Cypress Test Summary
+          run: |
+            echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
+
+            if [ ! -f cypress/results/results.xml ]; then
+            echo "Results file not found!"
+            exit 1
+            fi
+
+            xmllint --xpath "//testcase" cypress/results/results.xml | \
+            sed -E 's/<testcase /\n<testcase /g' | \
+            while read -r testcase; do
+            name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+            time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+            if echo "$testcase" | grep -q "<failure"; then
+              status="❌"
+              passed=0
+              failed=1
+            else
+              status="✅"
+              passed=1
+              failed=0
+            fi
+            pending=0
+            skipped=0
+
+            echo "### $name" >> $GITHUB_STEP_SUMMARY
+            echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
+            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            done
+
     test_22:
         # Operating system to run job on
         runs-on: ubuntu-latest
