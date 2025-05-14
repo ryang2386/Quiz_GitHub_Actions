@@ -36,7 +36,6 @@ jobs:
         - name: Install Cypress
           uses: cypress-io/github-action@v6
           with:
-            build: npm run build
             start: npm run start
             wait-on: 'http://localhost:3001'
         #   run: npm install cypress --save-dev
