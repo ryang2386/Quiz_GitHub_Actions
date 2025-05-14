@@ -64,18 +64,20 @@ jobs:
 
         - name: Write Test Summary to GitHub UI
           run: |
-            PASSED=$(grep -oP 'tests="\K[0-9]+' cypress/results/results.xml)
-            FAILED=$(grep -oP 'failures="\K[0-9]+' cypress/results/results.xml)
-            SKIPPED=$(grep -oP 'skipped="\K[0-9]+' cypress/results/results.xml)
+            if [[ -f cypress/results/results.xml ]]; then
+            PASSED=$(grep -o 'tests="[0-9]*"' cypress/results/results.xml | head -n1 | sed 's/[^0-9]*//g')
+            FAILED=$(grep -o 'failures="[0-9]*"' cypress/results/results.xml | head -n1 | sed 's/[^0-9]*//g')
+            SKIPPED=$(grep -o 'skipped="[0-9]*"' cypress/results/results.xml | head -n1 | sed 's/[^0-9]*//g')
+            DURATION=$(grep -o 'time="[0-9.]*"' cypress/results/results.xml | head -n1 | sed 's/[^0-9.]*//g')
             PENDING=0
-            DURATION=$(grep -oP 'time="\K[0-9.]+' cypress/results/results.xml)
 
             echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
             echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
             echo "| Passing | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
-
-
+            else
+            echo "❌ Cypress results file not found." >> $GITHUB_STEP_SUMMARY
+            fi
 
         - name: Publish test results
           uses: dorny/test-reporter@v2
