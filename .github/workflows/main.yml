@@ -54,7 +54,7 @@ jobs:
         - name: Install Cypress
           uses: cypress-io/github-action@v6
           with:
-            command: npx cypress run --component --browser chrome
+            command: npx cypress run --reporter github --component --browser chrome
 
         - name: Publish test results
           uses: dorny/test-reporter@v2
