@@ -57,6 +57,7 @@ jobs:
             component: true
             browser: chrome
             spec: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}'
+            command: npx cypress run --component --browser chrome --reporter github
 
         - name: Print GitHub Step Summary (Debug)
           run: cat $GITHUB_STEP_SUMMARY
