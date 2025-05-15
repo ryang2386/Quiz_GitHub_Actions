@@ -57,27 +57,70 @@ jobs:
             npx cypress run --component --spec "cypress/component/Quiz.cy.jsx" \
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+
         - name: Write Detailed Cypress Test Summary
           run: |
             echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
 
             if [ ! -f cypress/results/results.xml ]; then
-            echo "Results file not found!"
-            exit 1
-            fi
+              echo "Results file not found!"
+              exit 1
+              fi
 
             xmllint --xpath "//testcase" cypress/results/results.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
-            name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
-            time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+              name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+              time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+
+            if echo "$testcase" | grep -q "<skipped"; then
+              status="Skipped 🔁"
+              passed=""
+              failed=""
+              pending=""
+              skipped="1"
+            elif echo "$testcase" | grep -q "<pending"; then
+            elif echo "$testcase" | grep -q "<failure"; then
+              status="Failed ❌"
+              passed=""
+              failed="1"
+              pending=""
+              skipped=""
+            elif echo "$testcase" | grep -q "<skipped"; then
+              status="Skipped 🔁"
+              passed=""
+              failed=""
+              pending=""
+              skipped="1"
+            elif echo "$testcase" | grep -q "<system-out"; then
+            elif echo "$testcase" | grep -q "<error"; then
+              status="Error 💥"
+              passed=""
+              failed="1"
+              pending=""
+              skipped=""
+            else
+              status="Passed ✅"
+              passed="1"
+              failed=""
+              pending=""
+              skipped=""
+            fi
+            else
+              status="Passed ✅"
+              passed="1"
+              failed=""
+              pending=""
+              skipped=""
+              fi
 
             echo "### $name" >> $GITHUB_STEP_SUMMARY
             echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
-            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $GITHUB_STEP_SUMMARY
+            echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${time}s |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             done
+
 
         - name: Publish test results
           uses: dorny/test-reporter@v2
@@ -141,20 +184,61 @@ jobs:
             echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
 
             if [ ! -f cypress/results/results.xml ]; then
-            echo "Results file not found!"
-            exit 1
-            fi
+              echo "Results file not found!"
+              exit 1
+              fi
 
             xmllint --xpath "//testcase" cypress/results/results.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
-            name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
-            time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+              name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+              time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+
+            if echo "$testcase" | grep -q "<skipped"; then
+              status="Skipped 🔁"
+              passed=""
+              failed=""
+              pending=""
+              skipped="1"
+            elif echo "$testcase" | grep -q "<pending"; then
+            elif echo "$testcase" | grep -q "<failure"; then
+              status="Failed ❌"
+              passed=""
+              failed="1"
+              pending=""
+              skipped=""
+            elif echo "$testcase" | grep -q "<skipped"; then
+              status="Skipped 🔁"
+              passed=""
+              failed=""
+              pending=""
+              skipped="1"
+            elif echo "$testcase" | grep -q "<system-out"; then
+            elif echo "$testcase" | grep -q "<error"; then
+              status="Error 💥"
+              passed=""
+              failed="1"
+              pending=""
+              skipped=""
+            else
+              status="Passed ✅"
+              passed="1"
+              failed=""
+              pending=""
+              skipped=""
+            fi
+            else
+              status="Passed ✅"
+              passed="1"
+              failed=""
+              pending=""
+              skipped=""
+              fi
 
             echo "### $name" >> $GITHUB_STEP_SUMMARY
             echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
-            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $GITHUB_STEP_SUMMARY
+            echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${time}s |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             done
 
@@ -223,20 +307,61 @@ jobs:
             echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
 
             if [ ! -f cypress/results/results.xml ]; then
-            echo "Results file not found!"
-            exit 1
-            fi
+              echo "Results file not found!"
+              exit 1
+              fi
 
             xmllint --xpath "//testcase" cypress/results/results.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
-            name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
-            time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+              name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+              time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+
+            if echo "$testcase" | grep -q "<skipped"; then
+              status="Skipped 🔁"
+              passed=""
+              failed=""
+              pending=""
+              skipped="1"
+            elif echo "$testcase" | grep -q "<pending"; then
+            elif echo "$testcase" | grep -q "<failure"; then
+              status="Failed ❌"
+              passed=""
+              failed="1"
+              pending=""
+              skipped=""
+            elif echo "$testcase" | grep -q "<skipped"; then
+              status="Skipped 🔁"
+              passed=""
+              failed=""
+              pending=""
+              skipped="1"
+            elif echo "$testcase" | grep -q "<system-out"; then
+            elif echo "$testcase" | grep -q "<error"; then
+              status="Error 💥"
+              passed=""
+              failed="1"
+              pending=""
+              skipped=""
+            else
+              status="Passed ✅"
+              passed="1"
+              failed=""
+              pending=""
+              skipped=""
+            fi
+            else
+              status="Passed ✅"
+              passed="1"
+              failed=""
+              pending=""
+              skipped=""
+              fi
 
             echo "### $name" >> $GITHUB_STEP_SUMMARY
             echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
-            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $GITHUB_STEP_SUMMARY
+            echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${time}s |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             done
 
