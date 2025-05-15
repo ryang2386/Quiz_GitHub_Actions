@@ -67,7 +67,8 @@ jobs:
               exit 1
               fi
 
-              xmllint --format cypress/results/results.xml | grep "<testcase" > parsed_testcases.txt
+              xmllint --xpath "//testcase" cypress/results/results.xml | \
+              sed -E 's/<testcase /\n<testcase /g' | \
               while read -r testcase; do
                 name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
                 time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
