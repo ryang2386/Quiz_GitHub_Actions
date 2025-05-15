@@ -56,7 +56,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results18.xml,toConsole=false"
         - name: Write Detailed Cypress Test Summary
           run: |
             echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
@@ -89,7 +89,7 @@ jobs:
             echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             done
-            
+
     test_20:
         # Operating system to run job on
         runs-on: ubuntu-latest
@@ -137,7 +137,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results20.xml,toConsole=false"
 
         - name: Write Detailed Cypress Test Summary
           run: |
@@ -219,7 +219,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results22.xml,toConsole=false"
         # - name: Install Cypress
         #   uses: cypress-io/github-action@v6
         #   with:
