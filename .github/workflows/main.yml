@@ -67,9 +67,7 @@ jobs:
               exit 1
               fi
 
-    
-              xmllint --xpath "//testcase" cypress/results/results.xml | \
-              sed -E 's/<testcase /\n<testcase /g' | \
+              xmllint --format cypress/results/results.xml | grep "<testcase" > parsed_testcases.txt
               while read -r testcase; do
                 name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
                 time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
@@ -92,6 +90,12 @@ jobs:
                 failed="1"
                 pending=""
                 skipped=""
+              elif [[ -z "$time" || "$time" == "0" ]] && ! echo "$testcase" | grep -q "<failure\|<skipped\|<error"; then
+                status="Pending 🖐️"
+                passed=""
+                failed=""
+                pending="1"
+                skipped=""
               else
                 status="Passed ✅"
                 passed="1"
@@ -103,7 +107,8 @@ jobs:
               echo "### $name" >> $GITHUB_STEP_SUMMARY
               echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
               echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
-              echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${time}s |" >> $GITHUB_STEP_SUMMARY
+              duration="${time:-0}"
+              echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${duration}s |" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
               done
 
