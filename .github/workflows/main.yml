@@ -79,6 +79,14 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             done
 
+        - name: Publish test results
+          uses: dorny/test-reporter@v2
+          with:
+            name: Cypress Component Tests
+            path: cypress/results/*.xml
+            reporter: mocha-junit
+            fail-on-error: true
+
     test_20:
         # Operating system to run job on
         runs-on: ubuntu-latest
@@ -149,6 +157,14 @@ jobs:
             echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             done
+
+        - name: Publish test results
+          uses: dorny/test-reporter@v2
+          with:
+            name: Cypress Component Tests
+            path: cypress/results/*.xml
+            reporter: mocha-junit
+            fail-on-error: true
 
     test_22:
         # Operating system to run job on
@@ -230,7 +246,7 @@ jobs:
           with:
             name: Cypress Component Tests
             path: cypress/results/*.xml
-            reporter: jest-junit
+            reporter: mocha-junit
             fail-on-error: true
           # with:
           #   start: npm run start
