@@ -19,12 +19,6 @@ jobs:
                     - 27017:27017
                 options: >-
                     --health-cmd "mongosh --eval 'db.runCommand({ ping: 1})'" --health-interval 10s --health-timeout 5s --health-retries 5
-                # wait for mongo to be ready before running tests
-                # healthcheck:
-                #   test: echo "Mongo is up"
-                #   interval: 10s
-                #   timeout: 5s
-                #   retries: 3
 
     # Steps in job
         steps:
@@ -68,40 +62,38 @@ jobs:
 
         - name: Write Detailed Cypress Test Summary
           run: |
-            SUMMARY_FILE=custom-summary.md
-            echo "## Cypress Test Results" > $SUMMARY_FILE
+            echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
 
             if [ ! -f cypress/results/results.xml ]; then
-              echo "Results file not found!" >> $SUMMARY_FILE
-              echo "No results to summarize." >> $SUMMARY_FILE
+              echo "Results file not found!"
               exit 1
-            fi
+              fi
 
-            xmllint --xpath "//testcase" cypress/results/results.xml | \
-            sed -E 's/<testcase /\n<testcase /g' | \
-            while read -r testcase; do
-              name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
-              time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
-              time="${time:-0}"
+    
+              xmllint --xpath "//testcase" cypress/results/results.xml | \
+              sed -E 's/<testcase /\n<testcase /g' | \
+              while read -r testcase; do
+                name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+                time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
 
               if echo "$testcase" | grep -q "<skipped"; then
                 status="Skipped 🔁"
-                passed=0
-                failed=0
-                pending=0
-                skipped=1
+                passed=""
+                failed=""
+                pending=""
+                skipped="1"
               elif echo "$testcase" | grep -q "<failure"; then
                 status="Failed ❌"
-                passed=0
-                failed=1
-                pending=0
-                skipped=0
+                passed=""
+                failed="1"
+                pending=""
+                skipped=""
               elif echo "$testcase" | grep -q "<error"; then
                 status="Error 💥"
-                passed=0
-                failed=1
-                pending=0
-                skipped=0
+                passed=""
+                failed="1"
+                pending=""
+                skipped=""
               elif [[ -z "$time" || "$time" == "0" ]]; then
                 status="Pending 🖐️"
                 passed=0
@@ -110,22 +102,18 @@ jobs:
                 skipped=0
               else
                 status="Passed ✅"
-                passed=1
-                failed=0
-                pending=0
-                skipped=0
-              fi
-            
-            echo "" >> $SUMMARY_FILE
-            echo "### $name" >> $SUMMARY_FILE
-            echo "" >> $SUMMARY_FILE
-            echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $SUMMARY_FILE
-            echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $SUMMARY_FILE
-            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $SUMMARY_FILE
-            echo "" >> $SUMMARY_FILE
-            done
+                passed="1"
+                failed=""
+                pending=""
+                skipped=""
+                fi
 
-            cat $SUMMARY_FILE >> $GITHUB_STEP_SUMMARY
+              echo "### $name" >> $GITHUB_STEP_SUMMARY
+              echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
+              echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${time}s |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              done
 
     test_20:
         # Operating system to run job on
@@ -137,12 +125,6 @@ jobs:
                     - 27017:27017
                 options: >-
                     --health-cmd "mongosh --eval 'db.runCommand({ ping: 1})'" --health-interval 10s --health-timeout 5s --health-retries 5
-                # wait for mongo to be ready before running tests
-                # healthcheck:
-                #   test: echo "Mongo is up"
-                #   interval: 10s
-                #   timeout: 5s
-                #   retries: 3
 
     # Steps in job
         steps:
@@ -210,6 +192,12 @@ jobs:
                 failed="1"
                 pending=""
                 skipped=""
+              elif [[ -z "$time" || "$time" == "0" ]]; then
+                status="Pending 🖐️"
+                passed=0
+                failed=0
+                pending=1
+                skipped=0
               else
                 status="Passed ✅"
                 passed="1"
@@ -243,12 +231,6 @@ jobs:
                     - 27017:27017
                 options: >-
                     --health-cmd "mongosh --eval 'db.runCommand({ ping: 1})'" --health-interval 10s --health-timeout 5s --health-retries 5
-                # wait for mongo to be ready before running tests
-                # healthcheck:
-                #   test: echo "Mongo is up"
-                #   interval: 10s
-                #   timeout: 5s
-                #   retries: 3
 
     # Steps in job
         steps:
@@ -319,6 +301,12 @@ jobs:
                 failed="1"
                 pending=""
                 skipped=""
+              elif [[ -z "$time" || "$time" == "0" ]]; then
+                status="Pending 🖐️"
+                passed=0
+                failed=0
+                pending=1
+                skipped=0
               else
                 status="Passed ✅"
                 passed="1"
@@ -342,27 +330,3 @@ jobs:
             path: cypress/results/*.xml
             reporter: java-junit
             fail-on-error: true
-          # with:
-          #   start: npm run start
-          #   wait-on: 'http://localhost:3001'
-        #   run: npm install cypress --save-dev
-
-        # # Run tests
-        # - name: Run Tests
-        #   run: npm run test
-
-        # # Run Cypress tests
-        # - name: Run Cypress Tests
-        #   run: npx cypress run
-
-            #         if echo "$testcase" | grep -q "<failure"; then
-            #   status="❌"
-            #   passed=0
-            #   failed=1
-            # else
-            #   status="✅"
-            #   passed=1
-            #   failed=0
-            # fi
-            # pending=0
-            # skipped=0
