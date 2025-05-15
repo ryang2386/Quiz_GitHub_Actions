@@ -9,7 +9,16 @@ export default defineConfig({
       bundler: 'vite',
       viteConfig,
     },
+    specPattern: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}',
   },
+  reporter: 'cypress-multi-reporters',
+  reporterOptions: {
+  reporterEnabled: 'mocha-junit-reporter',
+  mochaJunitReporterReporterOptions: {
+    mochaFile: 'cypress/results/results-[hash].xml',
+    toConsole: false
+  },
+},
 
   e2e: {
     baseUrl: 'http://localhost:3001',

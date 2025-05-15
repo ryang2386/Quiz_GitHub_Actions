@@ -9,9 +9,22 @@ on:
 
 # Jobs to carry out
 jobs:
-    test:
+    test_18:
         # Operating system to run job on
         runs-on: ubuntu-latest
+        services:
+            mongo:
+                image: mongo:5.0
+                ports:
+                    - 27017:27017
+                options: >-
+                    --health-cmd "mongosh --eval 'db.runCommand({ ping: 1})'" --health-interval 10s --health-timeout 5s --health-retries 5
+                # wait for mongo to be ready before running tests
+                # healthcheck:
+                #   test: echo "Mongo is up"
+                #   interval: 10s
+                #   timeout: 5s
+                #   retries: 3
 
     # Steps in job
         steps:
@@ -20,9 +33,9 @@ jobs:
           uses: actions/checkout@v3
 
         - name: Use Node.js 21.x
-          uses: actions/setup-node@v4
+          uses: actions/setup-node@v3
           with:
-            node-version: 21.x
+            node-version: '21'
 
         # Install dependencies
         - name: 🧰 install deps
@@ -31,13 +44,307 @@ jobs:
         # Run build
         - name: Run Build
           run: npm run build
-          
+
+        # Run server
+        - name: Run Server
+          run: npm run start &
+            sleep 10 # wait for server to start
+
         # Install Cypress
-        - name: Install Cypress
-          uses: cypress-io/github-action@v6
+        - name: Run Cypress Tests
+          run: |
+            mkdir -p cypress/results
+            npx cypress run --component --spec "cypress/component/Quiz.cy.jsx" \
+            --reporter mocha-junit-reporter \
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+
+        - name: Publish test results
+          uses: dorny/test-reporter@v2
           with:
-            start: npm run start
-            wait-on: 'http://localhost:3001'
+            name: Cypress Component Tests
+            path: cypress/results/*.xml
+            reporter: java-junit
+            fail-on-error: true
+
+        - name: Write Detailed Cypress Test Summary
+          run: |
+            SUMMARY_FILE=custom-summary.md
+            echo "## Cypress Test Results" > $SUMMARY_FILE
+
+            if [ ! -f cypress/results/results.xml ]; then
+              echo "Results file not found!" >> $SUMMARY_FILE
+              echo "No results to summarize." >> $SUMMARY_FILE
+              exit 1
+            fi
+
+            xmllint --xpath "//testcase" cypress/results/results.xml | \
+            sed -E 's/<testcase /\n<testcase /g' | \
+            while read -r testcase; do
+              name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+              time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+              time="${time:-0}"
+
+              if echo "$testcase" | grep -q "<skipped"; then
+                status="Skipped 🔁"
+                passed=0
+                failed=0
+                pending=0
+                skipped=1
+              elif echo "$testcase" | grep -q "<failure"; then
+                status="Failed ❌"
+                passed=0
+                failed=1
+                pending=0
+                skipped=0
+              elif echo "$testcase" | grep -q "<error"; then
+                status="Error 💥"
+                passed=0
+                failed=1
+                pending=0
+                skipped=0
+              elif [[ -z "$time" || "$time" == "0" ]]; then
+                status="Pending 🖐️"
+                passed=0
+                failed=0
+                pending=1
+                skipped=0
+              else
+                status="Passed ✅"
+                passed=1
+                failed=0
+                pending=0
+                skipped=0
+              fi
+            
+            echo "" >> $SUMMARY_FILE
+            echo "### $name" >> $SUMMARY_FILE
+            echo "" >> $SUMMARY_FILE
+            echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $SUMMARY_FILE
+            echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $SUMMARY_FILE
+            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $SUMMARY_FILE
+            echo "" >> $SUMMARY_FILE
+            done
+
+            cat $SUMMARY_FILE >> $GITHUB_STEP_SUMMARY
+
+    test_20:
+        # Operating system to run job on
+        runs-on: ubuntu-latest
+        services:
+            mongo:
+                image: mongo:5.0
+                ports:
+                    - 27017:27017
+                options: >-
+                    --health-cmd "mongosh --eval 'db.runCommand({ ping: 1})'" --health-interval 10s --health-timeout 5s --health-retries 5
+                # wait for mongo to be ready before running tests
+                # healthcheck:
+                #   test: echo "Mongo is up"
+                #   interval: 10s
+                #   timeout: 5s
+                #   retries: 3
+
+    # Steps in job
+        steps:
+    # Get code from repo
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Use Node.js 21.x
+          uses: actions/setup-node@v3
+          with:
+            node-version: '21'
+
+        # Install dependencies
+        - name: 🧰 install deps
+          run: npm install
+            
+        # Run build
+        - name: Run Build
+          run: npm run build
+
+        # Run server
+        - name: Run Server
+          run: npm run start &
+            sleep 10 # wait for server to start
+
+        # Install Cypress
+        - name: Run Cypress Tests
+          run: |
+            mkdir -p cypress/results
+            npx cypress run --component --spec "cypress/component/Quiz2.cy.jsx" \
+            --reporter mocha-junit-reporter \
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+
+        - name: Write Detailed Cypress Test Summary
+          run: |
+            echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
+
+            if [ ! -f cypress/results/results.xml ]; then
+              echo "Results file not found!"
+              exit 1
+              fi
+
+    
+              xmllint --xpath "//testcase" cypress/results/results.xml | \
+              sed -E 's/<testcase /\n<testcase /g' | \
+              while read -r testcase; do
+                name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+                time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+
+              if echo "$testcase" | grep -q "<skipped"; then
+                status="Skipped 🔁"
+                passed=""
+                failed=""
+                pending=""
+                skipped="1"
+              elif echo "$testcase" | grep -q "<failure"; then
+                status="Failed ❌"
+                passed=""
+                failed="1"
+                pending=""
+                skipped=""
+              elif echo "$testcase" | grep -q "<error"; then
+                status="Error 💥"
+                passed=""
+                failed="1"
+                pending=""
+                skipped=""
+              else
+                status="Passed ✅"
+                passed="1"
+                failed=""
+                pending=""
+                skipped=""
+                fi
+
+              echo "### $name" >> $GITHUB_STEP_SUMMARY
+              echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
+              echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${time}s |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              done
+
+        - name: Publish test results
+          uses: dorny/test-reporter@v2
+          with:
+            name: Cypress Component Tests
+            path: cypress/results/*.xml
+            reporter: java-junit
+            fail-on-error: true
+
+    test_22:
+        # Operating system to run job on
+        runs-on: ubuntu-latest
+        services:
+            mongo:
+                image: mongo:5.0
+                ports:
+                    - 27017:27017
+                options: >-
+                    --health-cmd "mongosh --eval 'db.runCommand({ ping: 1})'" --health-interval 10s --health-timeout 5s --health-retries 5
+                # wait for mongo to be ready before running tests
+                # healthcheck:
+                #   test: echo "Mongo is up"
+                #   interval: 10s
+                #   timeout: 5s
+                #   retries: 3
+
+    # Steps in job
+        steps:
+    # Get code from repo
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Use Node.js 21.x
+          uses: actions/setup-node@v3
+          with:
+            node-version: '21'
+
+        # Install dependencies
+        - name: 🧰 install deps
+          run: npm install
+            
+        # Run build
+        - name: Run Build
+          run: npm run build
+
+        # Run server
+        - name: Run Server
+          run: npm run start &
+            sleep 10 # wait for server to start
+
+        # Install Cypress
+        - name: Run Cypress Tests
+          run: |
+            mkdir -p cypress/results
+            npx cypress run --component --browser chrome \
+            --reporter mocha-junit-reporter \
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
+        # - name: Install Cypress
+        #   uses: cypress-io/github-action@v6
+        #   with:
+        #     command: npx cypress run --component --browser chrome
+        - name: Write Detailed Cypress Test Summary
+          run: |
+            echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
+
+            if [ ! -f cypress/results/results.xml ]; then
+              echo "Results file not found!"
+              exit 1
+              fi
+
+    
+              xmllint --xpath "//testcase" cypress/results/results.xml | \
+              sed -E 's/<testcase /\n<testcase /g' | \
+              while read -r testcase; do
+                name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+                time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+
+              if echo "$testcase" | grep -q "<skipped"; then
+                status="Skipped 🔁"
+                passed=""
+                failed=""
+                pending=""
+                skipped="1"
+              elif echo "$testcase" | grep -q "<failure"; then
+                status="Failed ❌"
+                passed=""
+                failed="1"
+                pending=""
+                skipped=""
+              elif echo "$testcase" | grep -q "<error"; then
+                status="Error 💥"
+                passed=""
+                failed="1"
+                pending=""
+                skipped=""
+              else
+                status="Passed ✅"
+                passed="1"
+                failed=""
+                pending=""
+                skipped=""
+                fi
+
+              echo "### $name" >> $GITHUB_STEP_SUMMARY
+              echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
+              echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${time}s |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              done
+
+
+        - name: Publish test results
+          uses: dorny/test-reporter@v2
+          with:
+            name: Cypress Component Tests
+            path: cypress/results/*.xml
+            reporter: java-junit
+            fail-on-error: true
+          # with:
+          #   start: npm run start
+          #   wait-on: 'http://localhost:3001'
         #   run: npm install cypress --save-dev
 
         # # Run tests
@@ -47,3 +354,15 @@ jobs:
         # # Run Cypress tests
         # - name: Run Cypress Tests
         #   run: npx cypress run
+
+            #         if echo "$testcase" | grep -q "<failure"; then
+            #   status="❌"
+            #   passed=0
+            #   failed=1
+            # else
+            #   status="✅"
+            #   passed=1
+            #   failed=0
+            # fi
+            # pending=0
+            # skipped=0
