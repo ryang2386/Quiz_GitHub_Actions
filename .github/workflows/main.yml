@@ -58,14 +58,6 @@ jobs:
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
 
-        - name: Publish test results
-          uses: dorny/test-reporter@v2
-          with:
-            name: Cypress Component Tests
-            path: cypress/results/*.xml
-            reporter: java-junit
-            fail-on-error: true
-
         - name: Write Detailed Cypress Test Summary
           run: |
             SUMMARY_FILE=custom-summary.md
