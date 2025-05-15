@@ -68,10 +68,12 @@ jobs:
 
         - name: Write Detailed Cypress Test Summary
           run: |
-            echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
+            SUMMARY_FILE=custom-summary.md
+            echo "## Cypress Test Results" > $SUMMARY_FILE
 
             if [ ! -f cypress/results/results.xml ]; then
-              echo "Results file not found!"
+              echo "Results file not found!" >> $SUMMARY_FILE
+              echo "No results to summarize." >> $SUMMARY_FILE
               exit 1
             fi
 
@@ -114,14 +116,14 @@ jobs:
                 skipped=0
               fi
 
-              cat <<EOF >> $GITHUB_STEP_SUMMARY
-
+            echo "### $name" >> $SUMMARY_FILE
             | Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |
             |--------|-----------|-----------|-------------|-------------|--------------|
             | $status | $passed | $failed | $pending | $skipped | ${time}s |
+            echo "" >> $SUMMARY_FILE
+            done
 
-            EOF
-              done
+            cat $SUMMARY_FILE >> $GITHUB_STEP_SUMMARY
 
     test_20:
         # Operating system to run job on
