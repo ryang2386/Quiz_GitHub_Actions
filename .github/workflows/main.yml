@@ -65,55 +65,55 @@ jobs:
             if [ ! -f cypress/results/results.xml ]; then
               echo "Results file not found!"
               exit 1
-              fi
+            fi
 
-              xmllint --xpath "//testcase" cypress/results/results.xml | \
-              sed -E 's/<testcase /\n<testcase /g' | \
-              while read -r testcase; do
-                name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
-                time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+            xmllint --xpath "//testcase" cypress/results/results.xml | \
+            sed -E 's/<testcase /\n<testcase /g' | \
+            while read -r testcase; do
+              name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
+              time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
+              time="${time:-0}"
 
               if echo "$testcase" | grep -q "<skipped"; then
                 status="Skipped 🔁"
-                passed=""
-                failed=""
-                pending=""
-                skipped="1"
+                passed=0
+                failed=0
+                pending=0
+                skipped=1
               elif echo "$testcase" | grep -q "<failure"; then
                 status="Failed ❌"
-                passed=""
-                failed="1"
-                pending=""
-                skipped=""
+                passed=0
+                failed=1
+                pending=0
+                skipped=0
               elif echo "$testcase" | grep -q "<error"; then
                 status="Error 💥"
-                passed=""
-                failed="1"
-                pending=""
-                skipped=""
-              elif [[ -z "$time" || "$time" == "0" ]] && ! echo "$testcase" | grep -q "<failure\|<skipped\|<error"; then
+                passed=0
+                failed=1
+                pending=0
+                skipped=0
+              elif [[ -z "$time" || "$time" == "0" ]]; then
                 status="Pending 🖐️"
-                passed=""
-                failed=""
-                pending="1"
-                skipped=""
+                passed=0
+                failed=0
+                pending=1
+                skipped=0
               else
                 status="Passed ✅"
-                passed="1"
-                failed=""
-                pending=""
-                skipped=""
-                fi
+                passed=1
+                failed=0
+                pending=0
+                skipped=0
+              fi
 
-              echo "### $name" >> $GITHUB_STEP_SUMMARY
-              echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
-              echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $GITHUB_STEP_SUMMARY
-              duration="${time:-0}"
-              echo "| $status | ${passed:-0} | ${failed:-0} | ${pending:-0} | ${skipped:-0} | ${duration}s |" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
+              cat <<EOF >> $GITHUB_STEP_SUMMARY
+
+            | Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |
+            |--------|-----------|-----------|-------------|-------------|--------------|
+            | $status | $passed | $failed | $pending | $skipped | ${time}s |
+
+            EOF
               done
-
-
 
         - name: Publish test results
           uses: dorny/test-reporter@v2
