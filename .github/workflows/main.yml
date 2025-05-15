@@ -117,9 +117,9 @@ jobs:
               fi
 
             echo "### $name" >> $SUMMARY_FILE
-            | Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |
-            |--------|-----------|-----------|-------------|-------------|--------------|
-            | $status | $passed | $failed | $pending | $skipped | ${time}s |
+            echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $SUMMARY_FILE
+            echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $SUMMARY_FILE
+            echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $SUMMARY_FILE
             echo "" >> $SUMMARY_FILE
             done
 
