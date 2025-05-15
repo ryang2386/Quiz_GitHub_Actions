@@ -56,7 +56,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results18.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results_18.xml,toConsole=false"
         - name: Write Detailed Cypress Test Summary
           run: |
             echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
@@ -66,7 +66,7 @@ jobs:
             exit 1
             fi
 
-            xmllint --xpath "//testcase" cypress/results/results.xml | \
+            xmllint --xpath "//testcase" cypress/results/results_18.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
@@ -137,7 +137,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results20.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results_20.xml,toConsole=false"
 
         - name: Write Detailed Cypress Test Summary
           run: |
@@ -148,7 +148,7 @@ jobs:
             exit 1
             fi
 
-            xmllint --xpath "//testcase" cypress/results/results.xml | \
+            xmllint --xpath "//testcase" cypress/results/results_20.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
@@ -219,7 +219,7 @@ jobs:
             mkdir -p cypress/results
             npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results22.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results_22.xml,toConsole=false"
         # - name: Install Cypress
         #   uses: cypress-io/github-action@v6
         #   with:
@@ -233,7 +233,7 @@ jobs:
             exit 1
             fi
 
-            xmllint --xpath "//testcase" cypress/results/results.xml | \
+            xmllint --xpath "//testcase" cypress/results/results_22.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
