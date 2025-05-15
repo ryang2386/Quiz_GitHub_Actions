@@ -58,6 +58,14 @@ jobs:
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
 
+        - name: Publish test results
+          uses: dorny/test-reporter@v2
+          with:
+            name: Cypress Component Tests
+            path: cypress/results/*.xml
+            reporter: java-junit
+            fail-on-error: true
+
         - name: Write Detailed Cypress Test Summary
           run: |
             SUMMARY_FILE=custom-summary.md
@@ -107,8 +115,10 @@ jobs:
                 pending=0
                 skipped=0
               fi
-
+            
+            echo "" >> $SUMMARY_FILE
             echo "### $name" >> $SUMMARY_FILE
+            echo "" >> $SUMMARY_FILE
             echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $SUMMARY_FILE
             echo "|--------|-----------|-----------|-------------|-------------|--------------|" >> $SUMMARY_FILE
             echo "| $status | $passed | $failed | $pending | $skipped | ${time}s |" >> $SUMMARY_FILE
