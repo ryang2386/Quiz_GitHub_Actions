@@ -58,6 +58,14 @@ jobs:
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
 
+        - name: Publish test results
+          uses: dorny/test-reporter@v2
+          with:
+            name: Cypress Component Tests
+            path: cypress/results/*.xml
+            reporter: java-junit
+            fail-on-error: true
+
         - name: Write Detailed Cypress Test Summary
           run: |
             echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
@@ -114,14 +122,6 @@ jobs:
 
             EOF
               done
-
-        - name: Publish test results
-          uses: dorny/test-reporter@v2
-          with:
-            name: Cypress Component Tests
-            path: cypress/results/*.xml
-            reporter: java-junit
-            fail-on-error: true
 
     test_20:
         # Operating system to run job on
