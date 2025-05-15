@@ -54,7 +54,7 @@ jobs:
         - name: Run Cypress Tests
           run: |
             mkdir -p cypress/results
-            npx cypress run --component --browser chrome \
+            npx cypress run --component --spec 'cypress/component/Quiz.cy.ts' \
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results_18.xml,toConsole=false"
         - name: Write Detailed Cypress Test Summary
@@ -135,7 +135,7 @@ jobs:
         - name: Run Cypress Tests
           run: |
             mkdir -p cypress/results
-            npx cypress run --component --browser chrome \
+            npx cypress run --component --spec 'cypress/component/Quiz2.cy.ts' \
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results_20.xml,toConsole=false"
 
@@ -217,7 +217,7 @@ jobs:
         - name: Run Cypress Tests
           run: |
             mkdir -p cypress/results
-            npx cypress run --component --browser chrome \
+            npx cypress run --component --spec 'cypress/component/Quiz3.cy.ts' \
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results_22.xml,toConsole=false"
         # - name: Install Cypress
