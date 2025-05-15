@@ -84,7 +84,7 @@ jobs:
           with:
             name: Cypress Component Tests
             path: cypress/results/*.xml
-            reporter: mocha-junit
+            reporter: java-junit
             fail-on-error: true
 
     test_20:
@@ -163,7 +163,7 @@ jobs:
           with:
             name: Cypress Component Tests
             path: cypress/results/*.xml
-            reporter: mocha-junit
+            reporter: java-junit
             fail-on-error: true
 
     test_22:
@@ -246,7 +246,7 @@ jobs:
           with:
             name: Cypress Component Tests
             path: cypress/results/*.xml
-            reporter: mocha-junit
+            reporter: java-junit
             fail-on-error: true
           # with:
           #   start: npm run start
