@@ -54,9 +54,9 @@ jobs:
         - name: Run Cypress Tests
           run: |
             mkdir -p cypress/results
-            npx cypress run --component --spec 'cypress/component/Quiz.cy.ts' \
+            npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results_18.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
         - name: Write Detailed Cypress Test Summary
           run: |
             echo "## Cypress Test Results" >> $GITHUB_STEP_SUMMARY
@@ -66,7 +66,7 @@ jobs:
             exit 1
             fi
 
-            xmllint --xpath "//testcase" cypress/results/results_18.xml | \
+            xmllint --xpath "//testcase" cypress/results/results.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
@@ -135,9 +135,9 @@ jobs:
         - name: Run Cypress Tests
           run: |
             mkdir -p cypress/results
-            npx cypress run --component --spec 'cypress/component/Quiz2.cy.ts' \
+            npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results_20.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
 
         - name: Write Detailed Cypress Test Summary
           run: |
@@ -148,7 +148,7 @@ jobs:
             exit 1
             fi
 
-            xmllint --xpath "//testcase" cypress/results/results_20.xml | \
+            xmllint --xpath "//testcase" cypress/results/results.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
@@ -217,9 +217,9 @@ jobs:
         - name: Run Cypress Tests
           run: |
             mkdir -p cypress/results
-            npx cypress run --component --spec 'cypress/component/Quiz3.cy.ts' \
+            npx cypress run --component --browser chrome \
             --reporter mocha-junit-reporter \
-            --reporter-options "mochaFile=cypress/results/results_22.xml,toConsole=false"
+            --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
         # - name: Install Cypress
         #   uses: cypress-io/github-action@v6
         #   with:
@@ -233,7 +233,7 @@ jobs:
             exit 1
             fi
 
-            xmllint --xpath "//testcase" cypress/results/results_22.xml | \
+            xmllint --xpath "//testcase" cypress/results/results.xml | \
             sed -E 's/<testcase /\n<testcase /g' | \
             while read -r testcase; do
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
