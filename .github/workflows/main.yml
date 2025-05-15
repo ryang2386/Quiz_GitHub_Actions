@@ -54,7 +54,7 @@ jobs:
         - name: Run Cypress Tests
           run: |
             mkdir -p cypress/results
-            npx cypress run --component --browser chrome \
+            npx cypress run --component --spec "cypress/component/Quiz.cy.jsx" \
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
         - name: Write Detailed Cypress Test Summary
@@ -135,7 +135,7 @@ jobs:
         - name: Run Cypress Tests
           run: |
             mkdir -p cypress/results
-            npx cypress run --component --browser chrome \
+            npx cypress run --component --spec "cypress/component/Quiz2.cy.jsx" \
             --reporter mocha-junit-reporter \
             --reporter-options "mochaFile=cypress/results/results.xml,toConsole=false"
 
@@ -238,17 +238,6 @@ jobs:
             while read -r testcase; do
             name=$(echo "$testcase" | grep -oP 'name="\K[^"]+')
             time=$(echo "$testcase" | grep -oP 'time="\K[^"]+')
-            if echo "$testcase" | grep -q "<failure"; then
-              status="❌"
-              passed=0
-              failed=1
-            else
-              status="✅"
-              passed=1
-              failed=0
-            fi
-            pending=0
-            skipped=0
 
             echo "### $name" >> $GITHUB_STEP_SUMMARY
             echo "| Result | Passed ✅ | Failed ❌ | Pending 🖐️ | Skipped 🔁 | Duration ⏱️ |" >> $GITHUB_STEP_SUMMARY
@@ -277,3 +266,15 @@ jobs:
         # # Run Cypress tests
         # - name: Run Cypress Tests
         #   run: npx cypress run
+
+            #         if echo "$testcase" | grep -q "<failure"; then
+            #   status="❌"
+            #   passed=0
+            #   failed=1
+            # else
+            #   status="✅"
+            #   passed=1
+            #   failed=0
+            # fi
+            # pending=0
+            # skipped=0
